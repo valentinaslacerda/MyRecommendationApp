@@ -58,4 +58,14 @@ public class No {
     this.altura = 0;
     this.chave = user.getUsername().hashCode();
   }
+
+  public String[] getFriends() {
+    // TODO Auto-generated method stub
+    throw new UnsupportedOperationException("Unimplemented method 'getFriends'");
+  }
+
+  public String[] getBooks() {
+    // TODO Auto-generated method stub
+    throw new UnsupportedOperationException("Unimplemented method 'getBooks'");
+  }
 }

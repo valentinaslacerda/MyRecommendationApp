@@ -6,13 +6,20 @@ public class User {
   private ArrayList<String> books;
   private ArrayList<String> games;
   private ArrayList<String> movies;
+  private ArrayList<String> friends;
 
   public String getUsername() {
     return username;
   }
 
   public void setUsername(String username) {
-    this.username = username;
+    try {
+      if (username != null) {
+        throw new Exception("Campo username não encontrado");
+      }
+    } catch (Exception e) {
+      this.username = username;
+    }
   }
 
   public String getPassword() {
@@ -20,7 +27,13 @@ public class User {
   }
 
   public void setPassword(String password) {
-    this.password = password;
+    try {
+      if (password != null) {
+        throw new Exception("Campo password não encontrado");
+      }
+    } catch (Exception e) {
+      this.password = password;
+    }
   }
 
   public ArrayList<String> getBooks() {
@@ -47,12 +60,22 @@ public class User {
     this.movies = movies;
   }
 
+  public ArrayList<String> getFriends() {
+    return friends;
+  }
+
+  public void setFriends(ArrayList<String> friends) {
+    this.friends = friends;
+  }
+
   public User(String username, String password, ArrayList<String> books, ArrayList<String> games,
-      ArrayList<String> movies) {
+      ArrayList<String> movies, ArrayList<String> friends) {
     setUsername(username);
     setPassword(password);
     setBooks(books);
     setGames(games);
     setMovies(movies);
+    setFriends(friends);
   }
+
 }

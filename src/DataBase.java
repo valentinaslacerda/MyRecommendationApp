@@ -1,5 +1,9 @@
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+
+import javax.swing.JOptionPane;
 
 public class DataBase {
   private No raiz;
@@ -205,5 +209,202 @@ public class DataBase {
     } else {
       return 1 + quantidadeUsers(arv.getEsquerda()) + quantidadeUsers(arv.getDireita());
     }
+  }
+
+  // CRUD Operations
+
+  // Create - Inserir um novo usuário
+  public void criarUsuario(User user) {
+    String username = user.getUsername();
+    int chave = username.hashCode();
+    user.setUsername(username);
+    insert(chave, user);
+    System.out.println("Usuário criado com sucesso!");
+  }
+
+  // Método para criar uma nova conta de usuário
+  public void criarNovaConta() {
+    User novoUsuario = new User(null, null, null, null, null, null);
+    novoUsuario.setUsername(JOptionPane.showInputDialog("Digite um nome de usuário:"));
+    novoUsuario.setPassword(JOptionPane.showInputDialog("Digite uma senha:"));
+    // Outras informações de perfil podem ser solicitadas aqui, se necessário
+
+    // Inserir o novo usuário na árvore
+    int chave = novoUsuario.getUsername().hashCode();
+    insert(chave, novoUsuario);
+    JOptionPane.showMessageDialog(null, "Conta criada com sucesso! Faça login para continuar.");
+  }
+
+  // Read - Buscar um usuário pelo nome de usuário
+  public User buscarUsuario(String username) {
+    No no = buscar(raiz, username.hashCode());
+    if (no != null) {
+      return no.getUser();
+    } else {
+      JOptionPane.showMessageDialog(null, "Usuário não encontrado.");
+      return null;
+    }
+  }
+
+  // Update - Atualizar informações de um usuário
+  public void atualizarUsuario(String username) {
+    No no = buscar(raiz, username.hashCode());
+    if (no != null) {
+      User user = no.getUser();
+      // adicionar lógica para atualizar informações do usuário, como
+      // livros, filmes, jogos, etc.
+      JOptionPane.showMessageDialog(null, "Usuário atualizado com sucesso!");
+    } else {
+      JOptionPane.showMessageDialog(null, "Usuário não encontrado.");
+    }
+  }
+
+  // Delete - Remover um usuário pelo nome de usuário
+  public void deletarUsuario(String username) {
+    No no = buscar(raiz, username.hashCode());
+    if (no != null) {
+      remove(username.hashCode(), no.getUser());
+      JOptionPane.showMessageDialog(null, "Usuário removido com sucesso!");
+    } else {
+      JOptionPane.showMessageDialog(null, "Usuário não encontrado.");
+    }
+  }
+
+  // Método para gerar recomendações com base nos gostos dos amigos
+  public void gerarRecomendacoes(User usuario) {
+    List<String> recomendacoes = new ArrayList<>();
+
+    // Percorrer os amigos do usuário
+    for (String amigoUsername : usuario.getFriends()) {
+      // Buscar o amigo na árvore
+      User amigo = buscarUsuario(amigoUsername);
+
+      // Se o amigo for encontrado e tiver preferências de livros, filmes e séries
+      if (amigo != null && amigo.getBooks() != null && amigo.getMovies() != null && amigo.getGames() != null) {
+        // Adicionar as preferências do amigo às recomendações
+        recomendacoes.addAll(amigo.getBooks());
+        recomendacoes.addAll(amigo.getMovies());
+        recomendacoes.addAll(amigo.getGames());
+      }
+    }
+
+    // Remover duplicatas das recomendações
+    Set<String> recomendacoesSemDuplicatas = new HashSet<>(recomendacoes);
+    recomendacoes.clear();
+    recomendacoes.addAll(recomendacoesSemDuplicatas);
+
+    // Exibir as recomendações ao usuário
+    JOptionPane.showMessageDialog(null, "Recomendações baseadas nos gostos dos amigos:\n" + recomendacoes);
+  }
+
+  // Método para realizar o login do usuário
+  public User fazerLogin() {
+    String username = JOptionPane.showInputDialog("Digite seu nome de usuário:");
+    String senha = JOptionPane.showInputDialog("Digite sua senha:");
+
+    // Buscar o usuário na árvore
+    No noUsuario = buscar(raiz, username.hashCode());
+
+    // Verificar se o usuário existe e se a senha está correta
+    if (noUsuario != null && noUsuario.getUser().getPassword().equals(senha)) {
+      JOptionPane.showMessageDialog(null, "Login bem-sucedido!");
+      return noUsuario.getUser(); // Retornar o usuário logado
+    } else {
+      JOptionPane.showMessageDialog(null, "Nome de usuário ou senha incorretos.");
+      return null; // Retornar null se o login falhar
+    }
+  }
+
+  // Método para exibir o menu principal e lidar com as opções
+  public void exibirMenu() {
+    int opcao;
+    do {
+      String escolha = JOptionPane.showInputDialog(
+          "Selecione uma opção:\n" +
+              "1 - Login\n" +
+              "2 - Criar nova conta\n" +
+              "0 - Sair");
+      opcao = Integer.parseInt(escolha);
+
+      switch (opcao) {
+        case 1:
+          // Opção para fazer login
+          User usuarioLogado = fazerLogin();
+          if (usuarioLogado != null) {
+            // Se o login for bem-sucedido, exibir o menu principal
+            exibirMenuPrincipal(usuarioLogado);
+          }
+          break;
+        case 2:
+          // Opção para criar nova conta
+          criarNovaConta();
+          break;
+        case 0:
+          // Opção para sair do programa
+          JOptionPane.showMessageDialog(null, "Saindo do programa...");
+          break;
+        default:
+          JOptionPane.showMessageDialog(null, "Opção inválida!");
+          break;
+      }
+    } while (opcao != 0);
+  }
+
+  // Interface com JOptionPane
+  public void exibirMenuPrincipal(User usuarioLogado) {
+    int opcao;
+    do {
+      String escolha = JOptionPane.showInputDialog(
+          "Selecione uma opção:\n" +
+              "1 - Buscar amigo\n" +
+              "2 - Atualizar Usuário\n" +
+              "3 - Deletar Usuário\n" +
+              "4 - Gerar recomendações\n" +
+              "5 - Listar amigos\n" +
+              "0 - Sair");
+      opcao = Integer.parseInt(escolha);
+
+      switch (opcao) {
+        case 1:
+          String nomeBuscar = JOptionPane.showInputDialog("Digite o nome de usuário a ser buscado:");
+          User amigo = buscarUsuario(nomeBuscar);
+          JOptionPane.showMessageDialog(null, amigo.getUsername() + "\n" + amigo.getBooks() + "\n" + amigo.getGames()
+              + "\n" + amigo.getMovies() + "\n");
+          break;
+        case 2:
+          try {
+            atualizarUsuario(usuarioLogado.getUsername());
+            JOptionPane.showMessageDialog(null, "Usuário atualizado!");
+          } catch (Exception e) {
+            JOptionPane.showMessageDialog(null, "Erro ao atualizar usuário!");
+          }
+
+          break;
+        case 3:
+          try {
+            deletarUsuario(usuarioLogado.getUsername());
+            JOptionPane.showMessageDialog(null, "Usuário deletado!");
+
+          } catch (Exception e) {
+            JOptionPane.showMessageDialog(null, "Erro ao deletar usuário!");
+          }
+
+          break;
+        case 4:
+          JOptionPane.showMessageDialog(null, listarUsers());
+          break;
+        case 5:
+          gerarRecomendacoes(usuarioLogado);
+          break;
+
+        case 0:
+          JOptionPane.showMessageDialog(null, "Saindo do programa...");
+          break;
+        default:
+          JOptionPane.showMessageDialog(null, "Opção inválida!");
+          break;
+      }
+    } while (opcao != 0);
+    exibirMenu();
   }
 }
