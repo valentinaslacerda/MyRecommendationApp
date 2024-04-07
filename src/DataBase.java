@@ -246,14 +246,47 @@ public class DataBase {
     }
   }
 
-  // Update - Atualizar informações de um usuário
+  // Update - Atualizar informações de livros, filmes e jogos de um usuário
   public void atualizarUsuario(String username) {
     No no = buscar(raiz, username.hashCode());
     if (no != null) {
       User user = no.getUser();
-      // adicionar lógica para atualizar informações do usuário, como
-      // livros, filmes, jogos, etc.
-      JOptionPane.showMessageDialog(null, "Usuário atualizado com sucesso!");
+
+      // Solicitar ao usuário as novas informações de livros, filmes e jogos
+      ArrayList<String> newBooks = new ArrayList<>();
+      String bookInput = JOptionPane.showInputDialog("Digite os novos livros separados por vírgula:");
+      if (bookInput != null && !bookInput.isEmpty()) {
+        String[] bookArray = bookInput.split(",");
+        for (String book : bookArray) {
+          newBooks.add(book.trim());
+        }
+      }
+
+      ArrayList<String> newMovies = new ArrayList<>();
+      String movieInput = JOptionPane.showInputDialog("Digite os novos filmes separados por vírgula:");
+      if (movieInput != null && !movieInput.isEmpty()) {
+        String[] movieArray = movieInput.split(",");
+        for (String movie : movieArray) {
+          newMovies.add(movie.trim());
+        }
+      }
+
+      ArrayList<String> newGames = new ArrayList<>();
+      String gameInput = JOptionPane.showInputDialog("Digite os novos jogos separados por vírgula:");
+      if (gameInput != null && !gameInput.isEmpty()) {
+        String[] gameArray = gameInput.split(",");
+        for (String game : gameArray) {
+          newGames.add(game.trim());
+        }
+      }
+
+      // Atualizar as informações do usuário com as novas informações de livros,
+      // filmes e jogos
+      user.setBooks(newBooks);
+      user.setMovies(newMovies);
+      user.setGames(newGames);
+
+      JOptionPane.showMessageDialog(null, "Informações de livros, filmes e jogos atualizadas com sucesso!");
     } else {
       JOptionPane.showMessageDialog(null, "Usuário não encontrado.");
     }
@@ -359,8 +392,8 @@ public class DataBase {
               "1 - Buscar amigo\n" +
               "2 - Atualizar Usuário\n" +
               "3 - Deletar Usuário\n" +
-              "4 - Gerar recomendações\n" +
-              "5 - Listar amigos\n" +
+              "4 - Listar amigos\n" +
+              "5 - Gerar recomendações\n" +
               "0 - Sair");
       opcao = Integer.parseInt(escolha);
 
@@ -368,8 +401,9 @@ public class DataBase {
         case 1:
           String nomeBuscar = JOptionPane.showInputDialog("Digite o nome de usuário a ser buscado:");
           User amigo = buscarUsuario(nomeBuscar);
-          JOptionPane.showMessageDialog(null, amigo.getUsername() + "\n" + amigo.getBooks() + "\n" + amigo.getGames()
-              + "\n" + amigo.getMovies() + "\n");
+          JOptionPane.showMessageDialog(null,
+              amigo.getUsername() + "\n" + "Livros: " + amigo.getBooks() + "\n Jogos: " + amigo.getGames()
+                  + "\n Filmes: " + amigo.getMovies() + "\n");
           break;
         case 2:
           try {
@@ -391,7 +425,12 @@ public class DataBase {
 
           break;
         case 4:
-          JOptionPane.showMessageDialog(null, listarUsers());
+          List<User> users = listarUsers();
+          List<String> nomes = new ArrayList<String>();
+          for (User user : users) {
+            nomes.add(user.getUsername());
+          }
+          JOptionPane.showMessageDialog(null, nomes);
           break;
         case 5:
           gerarRecomendacoes(usuarioLogado);
