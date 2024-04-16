@@ -1,6 +1,10 @@
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
+import java.util.Queue;
 import java.util.Set;
 
 import javax.swing.JOptionPane;
@@ -303,31 +307,83 @@ public class DataBase {
     }
   }
 
-  // Método para gerar recomendações com base nos gostos dos amigos
+  // Método para gerar recomendações com base nos gostos dos amigos usando busca
+  // em largura
   public void gerarRecomendacoes(User usuario) {
     List<String> recomendacoes = new ArrayList<>();
+    Set<String> visitados = new HashSet<>(); // Conjunto para armazenar usuários visitados
+    Queue<User> fila = new LinkedList<>(); // Fila para a busca em largura
+    Map<String, Integer> frequenciaGostos = new HashMap<>(); // Mapa para armazenar a frequência de gostos
 
-    // Percorrer os amigos do usuário
-    for (String amigoUsername : usuario.getFriends()) {
-      // Buscar o amigo na árvore
-      User amigo = buscarUsuario(amigoUsername);
+    // Adiciona o usuário inicial à fila
+    fila.offer(usuario);
 
-      // Se o amigo for encontrado e tiver preferências de livros, filmes e séries
-      if (amigo != null && amigo.getBooks() != null && amigo.getMovies() != null && amigo.getGames() != null) {
-        // Adicionar as preferências do amigo às recomendações
-        recomendacoes.addAll(amigo.getBooks());
-        recomendacoes.addAll(amigo.getMovies());
-        recomendacoes.addAll(amigo.getGames());
+    while (!fila.isEmpty()) {
+      // Remove o usuário da fila
+      User currentUser = fila.poll();
+
+      // Adiciona o usuário atual aos visitados
+      visitados.add(currentUser.getUsername());
+
+      // Atualiza a frequência de gostos dos amigos
+      atualizarFrequenciaGostos(currentUser, frequenciaGostos);
+
+      // Percorre os amigos do usuário atual
+      for (String amigoUsername : currentUser.getFriends()) {
+        // Verifica se o amigo já foi visitado
+        if (!visitados.contains(amigoUsername)) {
+          // Busca o amigo na árvore
+          User amigo = buscarUsuario(amigoUsername);
+          if (amigo != null) {
+            // Adiciona o amigo à fila para explorar seus amigos na próxima iteração
+            fila.offer(amigo);
+          }
+        }
       }
     }
 
-    // Remover duplicatas das recomendações
-    Set<String> recomendacoesSemDuplicatas = new HashSet<>(recomendacoes);
-    recomendacoes.clear();
-    recomendacoes.addAll(recomendacoesSemDuplicatas);
+    // Ordena os gostos por frequência
+    List<Map.Entry<String, Integer>> sortedGostos = new ArrayList<>(frequenciaGostos.entrySet());
+    sortedGostos.sort((a, b) -> b.getValue().compareTo(a.getValue()));
 
-    // Exibir as recomendações ao usuário
+    // Verifica se há gostos em comum entre os amigos
+    if (sortedGostos.isEmpty() || sortedGostos.get(0).getValue() == 0) {
+      // Se não houver gostos em comum, recomenda alguns filmes e séries que eles
+      // estão vendo
+      recomendacoes.addAll(recomendarFilmesSeries());
+    } else {
+      // Caso contrário, recomenda com base nos gostos mais frequentes dos amigos
+      for (Map.Entry<String, Integer> entry : sortedGostos) {
+        recomendacoes.add(entry.getKey());
+      }
+    }
+
+    // Exibe as recomendações ao usuário
     JOptionPane.showMessageDialog(null, "Recomendações baseadas nos gostos dos amigos:\n" + recomendacoes);
+  }
+
+  // Método para atualizar a frequência de gostos dos amigos
+  private void atualizarFrequenciaGostos(User usuario, Map<String, Integer> frequenciaGostos) {
+    for (String filme : usuario.getMovies()) {
+      frequenciaGostos.put(filme, frequenciaGostos.getOrDefault(filme, 0) + 1);
+    }
+    for (String livro : usuario.getBooks()) {
+      frequenciaGostos.put(livro, frequenciaGostos.getOrDefault(livro, 0) + 1);
+    }
+    for (String jogo : usuario.getGames()) {
+      frequenciaGostos.put(jogo, frequenciaGostos.getOrDefault(jogo, 0) + 1);
+    }
+  }
+
+  // Método para recomendar alguns filmes e séries
+  private List<String> recomendarFilmesSeries() {
+    List<String> recomendacoes = new ArrayList<>();
+    // Aqui você pode adicionar alguns filmes e séries populares como recomendação
+    recomendacoes.add("Stranger Things");
+    recomendacoes.add("Breaking Bad");
+    recomendacoes.add("Game of Thrones");
+    // Adicione quantos você achar necessário
+    return recomendacoes;
   }
 
   // Método para realizar o login do usuário

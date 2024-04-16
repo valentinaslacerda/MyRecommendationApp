@@ -30,7 +30,7 @@ public class Run {
 
     // Adicionar informações para o usuário 2
     List<String> livros2 = Arrays.asList("Dom casmurro", "Uma Vida Pequena");
-    List<String> jogos2 = Arrays.asList("COD", "LOL");
+    List<String> jogos2 = Arrays.asList("Celeste", "LOL");
     List<String> amigos2 = Arrays.asList("Val", "Ricardo");
 
     livroList2.addAll(livros2);
@@ -48,7 +48,7 @@ public class Run {
 
     // Adicionar informações para o usuário 3
     List<String> livros3 = Arrays.asList("Divina Comédia");
-    List<String> jogos3 = Arrays.asList("Stardew Valley");
+    List<String> jogos3 = Arrays.asList("Celeste");
     List<String> amigos3 = Arrays.asList("Mateus", "Val");
 
     livroList3.addAll(livros3);
